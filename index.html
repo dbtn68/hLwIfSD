@@ -1,35 +1,38 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>릴모아</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0, user-scalable=no">
+<title>코드 확인 후 콘텐츠 표시 + 안내문 모달</title>
 <style>
-  body{font-family:system-ui,-apple-system,Segoe UI,Roboto,'Noto Sans KR',Arial;margin:40px;background:#f7f7f8}
-  .container{max-width:520px;margin:0 auto;padding:24px;background:#fff;border-radius:12px;box-shadow:0 6px 20px rgba(0,0,0,0.06);position:relative;transition:0.3s;}
-  .blur { filter: blur(4px); pointer-events: none; opacity:0.6; }
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,'Noto Sans KR',Arial;background:#f7f7f8;}
+  .container{max-width:520px;margin:40px auto;padding:24px;background:#fff;border-radius:12px;box-shadow:0 6px 20px rgba(0,0,0,0.06);position:relative;}
   label{display:block;margin-bottom:8px;font-weight:600}
   input[type=text]{width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:8px;font-size:16px;transition:0.3s}
   button{margin-top:12px;padding:10px 14px;border-radius:8px;border:0;background:#2563eb;color:#fff;font-weight:600;cursor:pointer;transition:0.3s}
   button:disabled,input:disabled{opacity:0.5;cursor:not-allowed;}
   .hint{margin-top:10px;color:#9ca3af;font-size:13px;}
+
   /* 2번 콘텐츠 스타일 */
-  #content-wrapper{display:none;}
-  html, body, #content-wrapper{margin:0;padding:0;height:100%;background:#fff;}
+  #content-wrapper{display:none;position:relative;}
+  html, body, #content-wrapper{margin:0;padding:0;height:100%;overflow:auto;background:#fff;}
   .img-wrapper{position:relative;width:100%;}
-  .img-wrapper img{width:100%; display:block;}
+  .img-wrapper img{width:100%;display:block;}
   .text{position:absolute;color:black;font-size:55px;white-space:nowrap;}
+
   /* 안내문 모달 */
   .modal-overlay{
-    position:fixed; top:0; left:0; width:100%; height:100%;
-    background:rgba(0,0,0,0.5); display:flex; justify-content:center; align-items:center; z-index:999;
+    position:fixed;top:0;left:0;width:100%;height:100%;
+    background:rgba(0,0,0,0.5);display:flex;justify-content:center;align-items:center;z-index:999;
   }
   .modal{
-    background:#fff; padding:24px; border-radius:12px; max-width:600px; max-height:80vh; overflow-y:auto; box-shadow:0 8px 24px rgba(0,0,0,0.2);
-    position:relative;
+    background:#fff;padding:24px;border-radius:12px;max-width:600px;max-height:80vh;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,0.2);position:relative;
   }
   .modal h3{margin-top:0;}
   .modal button{margin-right:8px;}
+
+  /* 블러 + 클릭 방지 */
+  .blurred{filter:blur(6px);pointer-events:none;overflow:hidden;}
 </style>
 </head>
 <body>
@@ -45,7 +48,7 @@
 <div id="content-wrapper">
   <div class="img-wrapper">
     <img src="https://uploads.onecompiler.io/445s8e832/445s7sk4a/KakaoTalk_20251126_141814064.png">
-    <div class="text" style="left:35%; top:31.5%; font-size:5vw;">2</div>
+    <div class="text" style="left:35%; top:31.5%; font-size:5vw;">1</div>
     <div class="text" style="left:58%; top:31.5%; font-size:5vw;">9</div>
     <div class="text" style="left:81%; top:31.5%; font-size:5vw;">9</div>
   </div>
@@ -88,21 +91,21 @@
 <script>
 (function(){
   const requiredCode = '58L7YF586K';
-  const inputContainer = document.getElementById('input-container');
   const input = document.getElementById('access-code');
   const btn = document.getElementById('confirm-btn');
   const message = document.getElementById('message');
+  const inputContainer = document.getElementById('input-container');
   const contentWrapper = document.getElementById('content-wrapper');
-
-  // 안내문 모달
   const modal = document.getElementById('modal');
-  const closeBtn = document.getElementById('close-modal');
-  const close24hBtn = document.getElementById('close-modal-24h');
+
+  btn.addEventListener('click', onConfirm);
+  input.addEventListener('keydown', e => { if(e.key==='Enter'){btn.click();} });
 
   function setCookie(name,value,days){
     const d=new Date(); d.setTime(d.getTime()+(days*24*60*60*1000));
     document.cookie=`${name}=${value};path=/;expires=${d.toUTCString()}`;
   }
+
   function getCookie(name){
     const cname = name+'=';
     const decoded = decodeURIComponent(document.cookie);
@@ -114,34 +117,22 @@
     return "";
   }
 
-  function enableInput(){ input.disabled=false; btn.disabled=false; inputContainer.classList.remove('blur'); }
-  function disableInput(){ input.disabled=true; btn.disabled=true; inputContainer.classList.add('blur'); }
-
-  if(getCookie('modalClosed24h')!=='true'){
-    modal.style.display='flex';
-    disableInput();
-  }
-
-  closeBtn.addEventListener('click',()=>{
-    modal.style.display='none';
-    enableInput();
-  });
-  close24hBtn.addEventListener('click',()=>{
-    setCookie('modalClosed24h','true',1);
-    modal.style.display='none';
-    enableInput();
-  });
-
-  // 코드 확인
-  btn.addEventListener('click', onConfirm);
-  input.addEventListener('keydown', e => { if(e.key==='Enter'){btn.click();} });
-
   function onConfirm(){
     const val = input.value.trim();
     if(val === requiredCode){
-      message.textContent = '코드 확인됨. 콘텐츠를 표시합니다.';
+      // 코드 맞으면 콘텐츠 표시 준비, 블러 적용
       inputContainer.style.display='none';
       contentWrapper.style.display='block';
+      contentWrapper.classList.add('blurred');
+
+      // 안내문 모달 표시
+      if(getCookie('modalClosed24h')==='true'){
+        // 24시간 쿠키가 있으면 바로 해제
+        contentWrapper.classList.remove('blurred');
+      } else {
+        modal.style.display='flex';
+      }
+
     } else if(val===''){
       message.textContent='입력칸이 비어있습니다.';
     } else {
@@ -149,6 +140,16 @@
     }
   }
 
+  // 모달 닫기 이벤트
+  document.getElementById('close-modal').addEventListener('click',()=>{
+    modal.style.display='none';
+    contentWrapper.classList.remove('blurred');
+  });
+  document.getElementById('close-modal-24h').addEventListener('click',()=>{
+    setCookie('modalClosed24h','true',1);
+    modal.style.display='none';
+    contentWrapper.classList.remove('blurred');
+  });
 })();
 </script>
 </body>
