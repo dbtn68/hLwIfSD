@@ -3,10 +3,11 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>코드 확인 후 콘텐츠 표시</title>
+<title>릴모아</title>
 <style>
   body{font-family:system-ui,-apple-system,Segoe UI,Roboto,'Noto Sans KR',Arial;margin:40px;background:#f7f7f8}
-  .container{max-width:520px;margin:0 auto;padding:24px;background:#fff;border-radius:12px;box-shadow:0 6px 20px rgba(0,0,0,0.06);position:relative;}
+  .container{max-width:520px;margin:0 auto;padding:24px;background:#fff;border-radius:12px;box-shadow:0 6px 20px rgba(0,0,0,0.06);position:relative;transition:0.3s;}
+  .blur { filter: blur(4px); pointer-events: none; opacity:0.6; }
   label{display:block;margin-bottom:8px;font-weight:600}
   input[type=text]{width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:8px;font-size:16px;transition:0.3s}
   button{margin-top:12px;padding:10px 14px;border-radius:8px;border:0;background:#2563eb;color:#fff;font-weight:600;cursor:pointer;transition:0.3s}
@@ -18,6 +19,17 @@
   .img-wrapper{position:relative;width:100%;}
   .img-wrapper img{width:100%; display:block;}
   .text{position:absolute;color:black;font-size:55px;white-space:nowrap;}
+  /* 안내문 모달 */
+  .modal-overlay{
+    position:fixed; top:0; left:0; width:100%; height:100%;
+    background:rgba(0,0,0,0.5); display:flex; justify-content:center; align-items:center; z-index:999;
+  }
+  .modal{
+    background:#fff; padding:24px; border-radius:12px; max-width:600px; max-height:80vh; overflow-y:auto; box-shadow:0 8px 24px rgba(0,0,0,0.2);
+    position:relative;
+  }
+  .modal h3{margin-top:0;}
+  .modal button{margin-right:8px;}
 </style>
 </head>
 <body>
@@ -61,15 +73,66 @@
   </div>
 </div>
 
+<!-- 안내문 모달 -->
+<div id="modal" class="modal-overlay" style="display:none;">
+  <div class="modal">
+    <h3>안내문</h3>
+    <p>본 사이트는 인스타그램 시스템상 친친을 한 그룹 밖에 설정할 수 없어 친친 변동 시 성형과 관련된 내용이 1%라도 포함된 릴스가 주인장의 성형 예정을 모르는 친친들에게 공개되는 상황을 방지하기 위해 개설되었으며, 친친이 변동되더라도 주인장의 성형 예정을 알고 있는 사람들만은 지속적으로 릴스를 다시 감상할 수 있도록 마련된 공간입니다. 이에 따라 주인장의 성형 예정을 알고 있는 사람들에게만 입장 코드를 배포하며, 오직 주인장의 성형 예정을 알고 있는 사람들만 사이트에 접근할 수 있도록 제한하고 있습니다. 만일 주인장의 성형 예정을 알고있는 사람들 중 1명 이상의 사람이 새롭게 합류될 경우 입장 코드를 재배포합니다. 또한 본 사이트의 이용이 예상 외로 불편하거나 번거롭다고 판단될 경우, 사이트가 즉시 폐쇄될 수도 있음을 안내드립니다.</p>
+    <div style="text-align:right;margin-top:16px;">
+      <button id="close-modal">닫기</button>
+      <button id="close-modal-24h">24시간 동안 닫기</button>
+    </div>
+  </div>
+</div>
+
 <script>
 (function(){
   const requiredCode = '58L7YF586K';
+  const inputContainer = document.getElementById('input-container');
   const input = document.getElementById('access-code');
   const btn = document.getElementById('confirm-btn');
   const message = document.getElementById('message');
-  const inputContainer = document.getElementById('input-container');
   const contentWrapper = document.getElementById('content-wrapper');
 
+  // 안내문 모달
+  const modal = document.getElementById('modal');
+  const closeBtn = document.getElementById('close-modal');
+  const close24hBtn = document.getElementById('close-modal-24h');
+
+  function setCookie(name,value,days){
+    const d=new Date(); d.setTime(d.getTime()+(days*24*60*60*1000));
+    document.cookie=`${name}=${value};path=/;expires=${d.toUTCString()}`;
+  }
+  function getCookie(name){
+    const cname = name+'=';
+    const decoded = decodeURIComponent(document.cookie);
+    const parts = decoded.split(';');
+    for(let i=0;i<parts.length;i++){
+      let c=parts[i].trim();
+      if(c.indexOf(cname)===0) return c.substring(cname.length,c.length);
+    }
+    return "";
+  }
+
+  function enableInput(){ input.disabled=false; btn.disabled=false; inputContainer.classList.remove('blur'); }
+  function disableInput(){ input.disabled=true; btn.disabled=true; inputContainer.classList.add('blur'); }
+
+  if(getCookie('modalClosed24h')!=='true'){
+    modal.style.display='flex';
+    disableInput();
+  }
+
+  closeBtn.addEventListener('click',()=>{
+    modal.style.display='none';
+    enableInput();
+  });
+  close24hBtn.addEventListener('click',()=>{
+    setCookie('modalClosed24h','true',1);
+    modal.style.display='none';
+    enableInput();
+  });
+
+  // 코드 확인
   btn.addEventListener('click', onConfirm);
   input.addEventListener('keydown', e => { if(e.key==='Enter'){btn.click();} });
 
@@ -85,6 +148,7 @@
       message.textContent='올바르지 않은 코드입니다.';
     }
   }
+
 })();
 </script>
 </body>
