@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>예찬이 버리고 튀기</title>
+<style>
+  body {
+    margin: 0;
+    background: #ffffff;
+    font-family: system-ui;
+  }
+  .slider-container {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .slider-track {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.4s ease;
+  }
+  .slide {
+    min-width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .slide img {
+    width: 100%;       /* 화면의 80% 크기 */
+    max-width: 600px; /* 최대 600px */
+    height: auto;
+    display: block;
+  }
+  .btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0,0,0,0.4);
+    border: none;
+    padding: 12px 18px;
+    font-size: 18px;
+    color: #fff;
+    cursor: pointer;
+    border-radius: 8px;
+    z-index: 10;
+  }
+  #prev { left: 10px; }
+  #next { right: 10px; }
+</style>
+</head>
+<body>
+<div class="slider-container">
+  <button class="btn" id="prev">◀</button>
+  <button class="btn" id="next">▶</button>
+  <div class="slider-track" id="track">
+    <div class="slide"><img src="https://i.esdrop.com/d/f/4PiRXDn9VM/W0pXrfv12v.jpg" alt="사진1"></div>
+    <div class="slide"><img src="https://i.esdrop.com/d/f/4PiRXDn9VM/E7LF325n16.jpg" alt="사진2"></div>
+    <div class="slide"><img src="https://i.esdrop.com/d/f/4PiRXDn9VM/ylhcLA1qSK.jpg" alt="사진3"></div>
+  </div>
+</div>
+<script>
+  const track = document.getElementById("track");
+  const prev = document.getElementById("prev");
+  const next = document.getElementById("next");
+  const slides = document.querySelectorAll(".slide");
+  const total = slides.length;
+  let index = 0;
+
+  function updateSlide() {
+    track.style.transform = `translateX(-${index * 100}%)`;
+  }
+
+  next.onclick = () => {
+    index = (index + 1) % total;
+    updateSlide();
+  };
+  prev.onclick = () => {
+    index = (index - 1 + total) % total;
+    updateSlide();
+  };
+
+  let startX = 0;
+  track.addEventListener("touchstart", e => {
+    startX = e.touches[0].clientX;
+  });
+  track.addEventListener("touchend", e => {
+    let endX = e.changedTouches[0].clientX;
+    if (startX - endX > 50) next.onclick();
+    if (endX - startX > 50) prev.onclick();
+  });
+</script>
+</body>
+</html>
