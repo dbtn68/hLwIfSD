@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>원형 재생 버튼</title>
+<style>
+  :root{
+    --size: 30px; /* 원형 재생바 크기 */
+    --ring-width: 8;
+  }
+  body{
+    display:flex;
+    height:100vh;
+    margin:0;
+    align-items:center;
+    justify-content:center;
+    background:#fafafa;
+    font-family:system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans KR", Arial;
+  }
+
+  /* 전체 컨테이너: 원형 + 텍스트 */
+  .player-wrap{
+    display:flex;
+    align-items:center;
+    gap:4.5px; /* 원과 텍스트 사이 간격 */
+  }
+
+  /* 오른쪽 텍스트 */
+  .song-title{
+    font-size:18px;
+    font-weight:500;
+    height:var(--size);              /* 원형 재생바와 높이 동일 */
+    display:flex;
+    align-items:center;              /* 세로 가운데 정렬 */
+    color:#000;
+    white-space:nowrap;
+  }
+
+  /* 원형 플레이어 */
+  .player {
+    width:var(--size);
+    height:var(--size);
+    position:relative;
+    display:inline-grid;
+    place-items:center;
+    user-select:none;
+  }
+  svg {
+    width:100%;
+    height:100%;
+    transform:rotate(-90deg);
+  }
+
+  .ring-base {
+    fill:none;
+    stroke:#000;
+    stroke-width:var(--ring-width);
+    transition: stroke 200ms ease;
+  }
+  .ring-bg{
+    fill:transparent;
+  }
+  .ring-progress{
+    fill:none;
+    stroke:#000;
+    stroke-width:var(--ring-width);
+    stroke-linecap:round;
+    stroke-dasharray:0 1000;
+  }
+
+  .icon{
+    position:absolute;
+    width:70%;
+    height:70%;
+    display:grid;
+    place-items:center;
+    pointer-events:none;
+    transform:rotate(90deg);
+  }
+
+  .btn{
+    position:absolute;
+    inset:0;
+    background:transparent;
+    border:0;
+    cursor:pointer;
+  }
+
+  /* 재생 중 스타일 */
+  .playing .ring-base{
+    stroke:#ccc; /* 회색 테두리 */
+  }
+
+  @media (max-width:420px){
+    :root{ --size:110px; }
+    .song-title{ font-size:16px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="player-wrap">
+  
+  <!-- 원형 플레이어 -->
+  <div class="player" id="player">
+    <svg viewBox="0 0 100 100">
+      <circle class="ring-base" cx="50" cy="50" r="40"/>
+      <circle class="ring-bg" cx="50" cy="50" r="36"/>
+      <circle class="ring-progress" cx="50" cy="50" r="40"/>
+    </svg>
+
+    <div class="icon">
+      <svg viewBox="0 0 100 100" width="100%" height="100%">
+        <g id="play-icon">
+          <polygon points="35,25 35,75 75,50" fill="#000"/>
+        </g>
+        <g id="stop-icon" style="display:none">
+          <rect x="35" y="30" width="30" height="40" fill="#000" rx="2"/>
+        </g>
+      </svg>
+    </div>
+
+    <button class="btn" id="btn"></button>
+  </div>
+
+  <!-- 오른쪽 노래 제목 -->
+  <div class="song-title">
+  <span style="color: rgb(0,0,0); font-weight:600;">보여줄게</span>
+  <span style="color: rgb(111,117,128); font-weight:1000;"><b>&nbsp•&nbsp</b></span>
+  <span style="color: rgb(111,117,128); font-weight:500;">에일리(Ailee)</span>
+</div>
+
+</div>
+
+<audio id="audio" preload="metadata">
+  <source src="보여줄게.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+(function(){
+  const player = document.getElementById("player");
+  const btn = document.getElementById("btn");
+  const audio = document.getElementById("audio");
+  const playIcon = document.getElementById("play-icon");
+  const stopIcon = document.getElementById("stop-icon");
+  const ringProgress = document.querySelector(".ring-progress");
+
+  const r = 40;
+  const circumference = 2 * Math.PI * r;
+  ringProgress.style.strokeDasharray = `0 ${circumference}`;
+
+  function setPlaying(on){
+    if(on){
+      player.classList.add("playing");
+      playIcon.style.display = "none";
+      stopIcon.style.display = "";
+    } else {
+      player.classList.remove("playing");
+      playIcon.style.display = "";
+      stopIcon.style.display = "none";
+      ringProgress.style.strokeDasharray = `0 ${circumference}`;
+    }
+  }
+
+  btn.addEventListener("click", () => {
+    if(audio.paused) audio.play();
+    else audio.pause();
+  });
+
+  audio.addEventListener("play", () => setPlaying(true));
+  audio.addEventListener("pause", () => setPlaying(false));
+  audio.addEventListener("ended", () => {
+    audio.currentTime = 0;
+    audio.pause();
+  });
+
+  audio.addEventListener("timeupdate", () => {
+    if(!audio.duration) return;
+    const pct = audio.currentTime / audio.duration;
+    const filled = circumference * pct;
+    ringProgress.style.strokeDasharray = `${filled} ${circumference - filled}`;
+  });
+})();
+</script>
+
+</body>
+</html>
