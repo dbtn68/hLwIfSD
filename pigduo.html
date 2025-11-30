@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0, user-scalable=no">
+<title>릴모아</title>
+<style>
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,'Noto Sans KR',Arial;background:#f7f7f8;}
+  .container{max-width:520px;margin:40px auto;padding:24px;background:#fff;border-radius:12px;box-shadow:0 6px 20px rgba(0,0,0,0.06);position:relative;}
+  label{display:block;margin-bottom:8px;font-weight:600}
+  input[type=text]{width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:8px;font-size:16px;transition:0.3s}
+  button{margin-top:12px;padding:10px 14px;border-radius:8px;border:0;background:#2563eb;color:#fff;font-weight:600;cursor:pointer;transition:0.3s}
+  button:disabled,input:disabled{opacity:0.5;cursor:not-allowed;}
+  .hint{margin-top:10px;color:#9ca3af;font-size:13px;}
+
+  /* 2번 콘텐츠 스타일 */
+  #content-wrapper{display:block;position:relative;}
+  html, body, #content-wrapper{margin:0;padding:0;height:100%;overflow:auto;background:#fff;}
+  .img-wrapper{position:relative;width:100%;}
+  .img-wrapper img{width:100%;display:block;}
+  .text{position:absolute;color:black;font-size:55px;white-space:nowrap;}
+
+  /* (모달 관련 스타일은 제거됨) */
+
+  /* 블러 클래스는 더 이상 스크립트에서 사용하지 않음 */
+  .blurred{filter:blur(6px);pointer-events:none;overflow:hidden;}
+</style>
+</head>
+<body>
+
+<!-- 2번 콘텐츠 (바로 표시) -->
+<div id="content-wrapper">
+  <div class="img-wrapper">
+    <img src="https://uploads.onecompiler.io/445xxehj8/445xxenqz/1000005309.png" alt="main">
+    <div class="text" style="left:35%; top:31.5%; font-size:5vw;">8</div>
+    <div class="text" style="left:56%; top:31.5%; font-size:5vw;">29</div>
+    <div class="text" style="left:79%; top:31.5%; font-size:5vw;">29</div>
+  </div>
+
+  <div class="img-wrapper">
+    <img src="https://uploads.onecompiler.io/445s8e832/445sbcfvp/Screenshot_20251126_143426_Instagram.jpg" alt="gallery">
+    <br><img src="https://uploads.onecompiler.io/445s8e832/445sbcfvp/Screenshot_20251126_143426_Instagram.jpg" alt="gallery">
+    <br><img src="https://uploads.onecompiler.io/445s8e832/445sbcfvp/Screenshot_20251126_143426_Instagram.jpg" alt="gallery">
+    <br><img src="https://uploads.onecompiler.io/445s8e832/445sbcfvp/Screenshot_20251126_143426_Instagram.jpg" alt="gallery">
+  </div>
+</div>
+
+<!-- 스크립트 없음 (입력 / 모달 관련 모든 기능 삭제됨) -->
+</body>
+</html>
