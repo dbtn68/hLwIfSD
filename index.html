@@ -53,6 +53,175 @@
     <div class="text" style="left:81%; top:31.5%; font-size:5vw;">9</div>
   </div>
 
+   <!-- 수정: 재생바와 노래 제목을 "예찬이와의 추억 앨범" 바로 아래에 위치 -->
+  <div style="position:absolute; left:5.3%; top:55%; width:84%; z-index:999;">
+    <!-- 2번 코드: 원형 재생 버튼 플레이어 시작 -->
+    <div class="player-wrap">
+
+      <!-- 원형 플레이어 -->
+      <div class="player" id="player">
+        <svg viewBox="0 0 100 100">
+          <circle class="ring-base" cx="50" cy="50" r="40"/>
+          <circle class="ring-bg" cx="50" cy="50" r="36"/>
+          <circle class="ring-progress" cx="50" cy="50" r="40"/>
+        </svg>
+
+        <div class="icon">
+          <svg viewBox="0 0 100 100" width="100%" height="100%">
+            <g id="play-icon">
+              <polygon points="35,25 35,75 75,50" fill="#000"/>
+            </g>
+            <g id="stop-icon" style="display:none">
+              <rect x="35" y="30" width="30" height="40" fill="#000" rx="2"/>
+            </g>
+          </svg>
+        </div>
+
+        <button class="btn" id="btn"></button>
+      </div>
+
+      <!-- 오른쪽 노래 제목 -->
+      <div class="song-title">
+        <span class="bold-black">보여줄게</span>
+        <span class="bold-gray">&nbsp•&nbsp</span>
+        <span class="light-gray">에일리(Ailee)</span>
+      </div>
+
+    </div>
+
+    <audio id="audio" preload="metadata">
+      <source src="보여줄게.mp3" type="audio/mpeg">
+    </audio>
+
+    <style>
+      :root{
+        --size: 30px;
+        --ring-width: 8;
+      }
+      .player-wrap{
+        display:flex;
+        align-items:center;
+        gap:4.5px;
+      }
+      .song-title{
+        font-size:18px;
+        font-weight:500;
+        height:var(--size);
+        display:flex;
+        align-items:center;
+        color:#000;
+        white-space:nowrap;
+      }
+      .player {
+        width:var(--size);
+        height:var(--size);
+        position:relative;
+        display:inline-grid;
+        place-items:center;
+        user-select:none;
+      }
+      svg {
+        width:100%;
+        height:100%;
+        transform:rotate(-90deg);
+      }
+      .ring-base {
+        fill:none;
+        stroke:#000;
+        stroke-width:var(--ring-width);
+        transition: stroke 200ms ease;
+      }
+      .ring-bg{
+        fill:transparent;
+      }
+      .ring-progress{
+        fill:none;
+        stroke:#000;
+        stroke-width:var(--ring-width);
+        stroke-linecap:round;
+        stroke-dasharray:0 1000;
+      }
+      .icon{
+        position:absolute;
+        width:70%;
+        height:70%;
+        display:grid;
+        place-items:center;
+        pointer-events:none;
+        transform:rotate(90deg);
+      }
+      .btn{
+        position:absolute;
+        inset:0;
+        background:transparent;
+        border:0;
+        cursor:pointer;
+      }
+      .playing .ring-base{
+        stroke:#ccc;
+      }
+      .song-title span.bold-black{
+        font-weight:600;
+        color: rgb(0,0,0);
+      }
+      .song-title span.bold-gray{
+        font-weight:600;
+        color: rgb(111,117,128);
+      }
+      .song-title span.light-gray{
+        font-weight:300;
+        color: rgb(111,117,128);
+      }
+    </style>
+
+    <script>
+    (function(){
+      const player = document.getElementById("player");
+      const btn = document.getElementById("btn");
+      const audio = document.getElementById("audio");
+      const playIcon = document.getElementById("play-icon");
+      const stopIcon = document.getElementById("stop-icon");
+      const ringProgress = document.querySelector(".ring-progress");
+
+      const r = 40;
+      const circumference = 2 * Math.PI * r;
+      ringProgress.style.strokeDasharray = `0 ${circumference}`;
+
+      function setPlaying(on){
+        if(on){
+          player.classList.add("playing");
+          playIcon.style.display = "none";
+          stopIcon.style.display = "";
+        } else {
+          player.classList.remove("playing");
+          playIcon.style.display = "";
+          stopIcon.style.display = "none";
+          ringProgress.style.strokeDasharray = `0 ${circumference}`;
+        }
+      }
+
+      btn.addEventListener("click", () => {
+        if(audio.paused) audio.play();
+        else audio.pause();
+      });
+
+      audio.addEventListener("play", () => setPlaying(true));
+      audio.addEventListener("pause", () => setPlaying(false));
+      audio.addEventListener("ended", () => {
+        audio.currentTime = 0;
+        audio.pause();
+      });
+
+      audio.addEventListener("timeupdate", () => {
+        if(!audio.duration) return;
+        const pct = audio.currentTime / audio.duration;
+        const filled = circumference * pct;
+        ringProgress.style.strokeDasharray = `${filled} ${circumference - filled}`;
+      });
+    })();
+    </script>
+  </div>
+
   <div class="img-wrapper">
     <img src="https://uploads.onecompiler.io/445s8e832/445sbcfvp/Screenshot_20251126_143426_Instagram.jpg">
     
