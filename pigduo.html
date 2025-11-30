@@ -20,8 +20,6 @@
   .img-wrapper img{width:100%;display:block;}
   .text{position:absolute;color:black;font-size:55px;white-space:nowrap;}
 
-  /* (모달 관련 스타일은 제거됨) */
-
   /* 블러 클래스는 더 이상 스크립트에서 사용하지 않음 */
   .blurred{filter:blur(6px);pointer-events:none;overflow:hidden;}
 </style>
@@ -38,229 +36,228 @@
     <div class="text" style="left:8%; top:53%; font-size:2.3vw;">예찬이와의 추억 앨범</div>
   </div>
   
-  <!-- 기존 예찬이와의 추억 앨범 div 바로 아래 -->
-<div style="position:absolute; left:8%; top:53.5%; width:84%; z-index:999;">
-  <!-- 2번 코드: 원형 재생 버튼 플레이어 시작 -->
-  <div class="player-wrap">
+  <!-- 수정: 재생바와 노래 제목을 "예찬이와의 추억 앨범" 바로 아래에 위치 -->
+  <div style="position:absolute; left:8%; top:53.5%; width:84%; z-index:999;">
+    <!-- 2번 코드: 원형 재생 버튼 플레이어 시작 -->
+    <div class="player-wrap">
 
-    <!-- 원형 플레이어 -->
-    <div class="player" id="player">
-      <svg viewBox="0 0 100 100">
-        <circle class="ring-base" cx="50" cy="50" r="40"/>
-        <circle class="ring-bg" cx="50" cy="50" r="36"/>
-        <circle class="ring-progress" cx="50" cy="50" r="40"/>
-      </svg>
-
-      <div class="icon">
-        <svg viewBox="0 0 100 100" width="100%" height="100%">
-          <g id="play-icon">
-            <polygon points="35,25 35,75 75,50" fill="#000"/>
-          </g>
-          <g id="stop-icon" style="display:none">
-            <rect x="35" y="30" width="30" height="40" fill="#000" rx="2"/>
-          </g>
+      <!-- 원형 플레이어 -->
+      <div class="player" id="player">
+        <svg viewBox="0 0 100 100">
+          <circle class="ring-base" cx="50" cy="50" r="40"/>
+          <circle class="ring-bg" cx="50" cy="50" r="36"/>
+          <circle class="ring-progress" cx="50" cy="50" r="40"/>
         </svg>
+
+        <div class="icon">
+          <svg viewBox="0 0 100 100" width="100%" height="100%">
+            <g id="play-icon">
+              <polygon points="35,25 35,75 75,50" fill="#000"/>
+            </g>
+            <g id="stop-icon" style="display:none">
+              <rect x="35" y="30" width="30" height="40" fill="#000" rx="2"/>
+            </g>
+          </svg>
+        </div>
+
+        <button class="btn" id="btn"></button>
       </div>
 
-      <button class="btn" id="btn"></button>
+      <!-- 오른쪽 노래 제목 -->
+      <div class="song-title">
+        <span class="bold-black">보여줄게</span>
+        <span class="bold-gray">&nbsp•&nbsp</span>
+        <span class="light-gray">에일리(Ailee)</span>
+      </div>
+
     </div>
 
-    <!-- 오른쪽 노래 제목 -->
-    <div class="song-title">
-      <span class="bold-black">보여줄게</span>
-      <span class="bold-gray">&nbsp•&nbsp</span>
-      <span class="light-gray">에일리(Ailee)</span>
-    </div>
+    <audio id="audio" preload="metadata">
+      <source src="보여줄게.mp3" type="audio/mpeg">
+    </audio>
 
+    <style>
+      :root{
+        --size: 30px;
+        --ring-width: 8;
+      }
+      .player-wrap{
+        display:flex;
+        align-items:center;
+        gap:4.5px;
+      }
+      .song-title{
+        font-size:18px;
+        font-weight:500;
+        height:var(--size);
+        display:flex;
+        align-items:center;
+        color:#000;
+        white-space:nowrap;
+      }
+      .player {
+        width:var(--size);
+        height:var(--size);
+        position:relative;
+        display:inline-grid;
+        place-items:center;
+        user-select:none;
+      }
+      svg {
+        width:100%;
+        height:100%;
+        transform:rotate(-90deg);
+      }
+      .ring-base {
+        fill:none;
+        stroke:#000;
+        stroke-width:var(--ring-width);
+        transition: stroke 200ms ease;
+      }
+      .ring-bg{
+        fill:transparent;
+      }
+      .ring-progress{
+        fill:none;
+        stroke:#000;
+        stroke-width:var(--ring-width);
+        stroke-linecap:round;
+        stroke-dasharray:0 1000;
+      }
+      .icon{
+        position:absolute;
+        width:70%;
+        height:70%;
+        display:grid;
+        place-items:center;
+        pointer-events:none;
+        transform:rotate(90deg);
+      }
+      .btn{
+        position:absolute;
+        inset:0;
+        background:transparent;
+        border:0;
+        cursor:pointer;
+      }
+      .playing .ring-base{
+        stroke:#ccc;
+      }
+      .song-title span.bold-black{
+        font-weight:600;
+        color: rgb(0,0,0);
+      }
+      .song-title span.bold-gray{
+        font-weight:600;
+        color: rgb(111,117,128);
+      }
+      .song-title span.light-gray{
+        font-weight:300;
+        color: rgb(111,117,128);
+      }
+    </style>
+
+    <script>
+    (function(){
+      const player = document.getElementById("player");
+      const btn = document.getElementById("btn");
+      const audio = document.getElementById("audio");
+      const playIcon = document.getElementById("play-icon");
+      const stopIcon = document.getElementById("stop-icon");
+      const ringProgress = document.querySelector(".ring-progress");
+
+      const r = 40;
+      const circumference = 2 * Math.PI * r;
+      ringProgress.style.strokeDasharray = `0 ${circumference}`;
+
+      function setPlaying(on){
+        if(on){
+          player.classList.add("playing");
+          playIcon.style.display = "none";
+          stopIcon.style.display = "";
+        } else {
+          player.classList.remove("playing");
+          playIcon.style.display = "";
+          stopIcon.style.display = "none";
+          ringProgress.style.strokeDasharray = `0 ${circumference}`;
+        }
+      }
+
+      btn.addEventListener("click", () => {
+        if(audio.paused) audio.play();
+        else audio.pause();
+      });
+
+      audio.addEventListener("play", () => setPlaying(true));
+      audio.addEventListener("pause", () => setPlaying(false));
+      audio.addEventListener("ended", () => {
+        audio.currentTime = 0;
+        audio.pause();
+      });
+
+      audio.addEventListener("timeupdate", () => {
+        if(!audio.duration) return;
+        const pct = audio.currentTime / audio.duration;
+        const filled = circumference * pct;
+        ringProgress.style.strokeDasharray = `${filled} ${circumference - filled}`;
+      });
+    })();
+    </script>
   </div>
 
-  <audio id="audio" preload="metadata">
-    <source src="보여줄게.mp3" type="audio/mpeg">
-  </audio>
-
-  <style>
-    :root{
-      --size: 30px;
-      --ring-width: 8;
-    }
-    .player-wrap{
-      display:flex;
-      align-items:center;
-      gap:4.5px;
-    }
-    .song-title{
-      font-size:18px;
-      font-weight:500;
-      height:var(--size);
-      display:flex;
-      align-items:center;
-      color:#000;
-      white-space:nowrap;
-    }
-    .player {
-      width:var(--size);
-      height:var(--size);
-      position:relative;
-      display:inline-grid;
-      place-items:center;
-      user-select:none;
-    }
-    svg {
-      width:100%;
-      height:100%;
-      transform:rotate(-90deg);
-    }
-    .ring-base {
-      fill:none;
-      stroke:#000;
-      stroke-width:var(--ring-width);
-      transition: stroke 200ms ease;
-    }
-    .ring-bg{
-      fill:transparent;
-    }
-    .ring-progress{
-      fill:none;
-      stroke:#000;
-      stroke-width:var(--ring-width);
-      stroke-linecap:round;
-      stroke-dasharray:0 1000;
-    }
-    .icon{
-      position:absolute;
-      width:70%;
-      height:70%;
-      display:grid;
-      place-items:center;
-      pointer-events:none;
-      transform:rotate(90deg);
-    }
-    .btn{
-      position:absolute;
-      inset:0;
-      background:transparent;
-      border:0;
-      cursor:pointer;
-    }
-    .playing .ring-base{
-      stroke:#ccc;
-    }
-    .song-title span.bold-black{
-      font-weight:600;
-      color: rgb(0,0,0);
-    }
-    .song-title span.bold-gray{
-      font-weight:600;
-      color: rgb(111,117,128);
-    }
-    .song-title span.light-gray{
-      font-weight:300;
-      color: rgb(111,117,128);
-    }
-  </style>
-
-  <script>
-  (function(){
-    const player = document.getElementById("player");
-    const btn = document.getElementById("btn");
-    const audio = document.getElementById("audio");
-    const playIcon = document.getElementById("play-icon");
-    const stopIcon = document.getElementById("stop-icon");
-    const ringProgress = document.querySelector(".ring-progress");
-
-    const r = 40;
-    const circumference = 2 * Math.PI * r;
-    ringProgress.style.strokeDasharray = `0 ${circumference}`;
-
-    function setPlaying(on){
-      if(on){
-        player.classList.add("playing");
-        playIcon.style.display = "none";
-        stopIcon.style.display = "";
-      } else {
-        player.classList.remove("playing");
-        playIcon.style.display = "";
-        stopIcon.style.display = "none";
-        ringProgress.style.strokeDasharray = `0 ${circumference}`;
-      }
-    }
-
-    btn.addEventListener("click", () => {
-      if(audio.paused) audio.play();
-      else audio.pause();
-    });
-
-    audio.addEventListener("play", () => setPlaying(true));
-    audio.addEventListener("pause", () => setPlaying(false));
-    audio.addEventListener("ended", () => {
-      audio.currentTime = 0;
-      audio.pause();
-    });
-
-    audio.addEventListener("timeupdate", () => {
-      if(!audio.duration) return;
-      const pct = audio.currentTime / audio.duration;
-      const filled = circumference * pct;
-      ringProgress.style.strokeDasharray = `${filled} ${circumference - filled}`;
-    });
-  })();
-  </script>
-</div>
-
-
   <div class="img-wrapper" style="position:relative;">
-  <img src="https://uploads.onecompiler.io/445s8e832/445sbcfvp/Screenshot_20251126_143426_Instagram.jpg" 
-       alt="gallery"
-       style="position:relative; z-index:10;">
-  <br><img src="https://uploads.onecompiler.io/445s8e832/445sbcfvp/Screenshot_20251126_143426_Instagram.jpg" 
-       alt="gallery"
-       style="position:relative; z-index:10;">
-  <br><img src="https://uploads.onecompiler.io/445s8e832/445sbcfvp/Screenshot_20251126_143426_Instagram.jpg" 
-       alt="gallery"
-       style="position:relative; z-index:10;">
-  <br><img src="https://uploads.onecompiler.io/445s8e832/445sbcfvp/Screenshot_20251126_143426_Instagram.jpg" 
-       alt="gallery"
-       style="position:relative; z-index:10;">
+    <img src="https://uploads.onecompiler.io/445s8e832/445sbcfvp/Screenshot_20251126_143426_Instagram.jpg" 
+         alt="gallery"
+         style="position:relative; z-index:10;">
+    <br><img src="https://uploads.onecompiler.io/445s8e832/445sbcfvp/Screenshot_20251126_143426_Instagram.jpg" 
+         alt="gallery"
+         style="position:relative; z-index:10;">
+    <br><img src="https://uploads.onecompiler.io/445s8e832/445sbcfvp/Screenshot_20251126_143426_Instagram.jpg" 
+         alt="gallery"
+         style="position:relative; z-index:10;">
+    <br><img src="https://uploads.onecompiler.io/445s8e832/445sbcfvp/Screenshot_20251126_143426_Instagram.jpg" 
+         alt="gallery"
+         style="position:relative; z-index:10;">
 
-  <!-- 이 이미지가 위에 덮힘 -->
-  <img src="https://uploads.onecompiler.io/445s8e832/4465y7qx5/whitescreen.jpg" 
-       alt="cover" 
-       style="position:absolute; left:0; top:0; width:100%; height:100%; z-index:60;">
-       
-       <!-- 피드 이미지 -->
-      <a href="https://dbtn68.github.io/hLwIfSD/RunFeed.html">
-       <img src="https://i.esdrop.com/d/f/4PiRXDn9VM/W0pXrfv12v.jpg" 
-       alt="cover" 
-       style="position:absolute; left:0%; top:0.018%; width:33.2%; height:auto; z-index:100;"></a>
-      <a href="https://dbtn68.github.io/hLwIfSD/Carbuy.html">
-       <img src="https://i.esdrop.com/d/f/4PiRXDn9VM/kMEtTRQSfi.jpg" 
-       alt="cover" 
-       style="position:absolute; left:33.7%; top:0.018%; width:33.2%; height:auto; z-index:100;"></a>
-       <img src="https://i.esdrop.com/d/f/4PiRXDn9VM/6fdHgtKBmD.jpg" 
-       alt="cover" 
-       style="position:absolute; left:67.4%; top:0.018%; width:33.2%; height:auto%; z-index:100;">
-      <a href="https://dbtn68.github.io/hLwIfSD/ChinaRich.html">
-       <img src="https://i.esdrop.com/d/f/4PiRXDn9VM/galZUWFTZo.jpg" 
-       alt="cover" 
-       style="position:absolute; left:0%; top:4.99%; width:33.2%; height:auto; z-index:100;"></a>
-       <img src="https://i.esdrop.com/d/f/4PiRXDn9VM/34PNMairR4.jpg" 
-       alt="cover" 
-       style="position:absolute; left:33.7%; top:5%; width:33.2%; height:auto%; z-index:100;">
-       <img src="https://i.esdrop.com/d/f/4PiRXDn9VM/BXsv4zYF1P.jpg" 
-       alt="cover" 
-       style="position:absolute; left:67.4%; top:5%; width:33.2%; height:auto%; z-index:100;">
-       
-       <!-- ... -->
-       <img src="https://i.esdrop.com/d/f/4PiRXDn9VM/Mx4dFGE3Am.png" 
-       alt="cover" 
-       style="position:absolute; left:49%; top:4.7%; width:4.5%; height:auto%; z-index:101;">
-       <img src="https://i.esdrop.com/d/f/4PiRXDn9VM/Mx4dFGE3Am.png" 
-       alt="cover" 
-       style="position:absolute; left:13.5%; top:4.7%; width:4.5%; height:auto%; z-index:101;">
-       <img src="https://i.esdrop.com/d/f/4PiRXDn9VM/Mx4dFGE3Am.png" 
-       alt="cover" 
-       style="position:absolute; left:13.5%; top:9.66%; width:4.5%; height:auto%; z-index:101;">
-</div>
+    <!-- 이 이미지가 위에 덮힘 -->
+    <img src="https://uploads.onecompiler.io/445s8e832/4465y7qx5/whitescreen.jpg" 
+         alt="cover" 
+         style="position:absolute; left:0; top:0; width:100%; height:100%; z-index:60;">
+         
+         <!-- 피드 이미지 -->
+        <a href="https://dbtn68.github.io/hLwIfSD/RunFeed.html">
+         <img src="https://i.esdrop.com/d/f/4PiRXDn9VM/W0pXrfv12v.jpg" 
+         alt="cover" 
+         style="position:absolute; left:0%; top:0.018%; width:33.2%; height:auto; z-index:100;"></a>
+        <a href="https://dbtn68.github.io/hLwIfSD/Carbuy.html">
+         <img src="https://i.esdrop.com/d/f/4PiRXDn9VM/kMEtTRQSfi.jpg" 
+         alt="cover" 
+         style="position:absolute; left:33.7%; top:0.018%; width:33.2%; height:auto; z-index:100;"></a>
+         <img src="https://i.esdrop.com/d/f/4PiRXDn9VM/6fdHgtKBmD.jpg" 
+         alt="cover" 
+         style="position:absolute; left:67.4%; top:0.018%; width:33.2%; height:auto%; z-index:100;">
+        <a href="https://dbtn68.github.io/hLwIfSD/ChinaRich.html">
+         <img src="https://i.esdrop.com/d/f/4PiRXDn9VM/galZUWFTZo.jpg" 
+         alt="cover" 
+         style="position:absolute; left:0%; top:4.99%; width:33.2%; height:auto; z-index:100;"></a>
+         <img src="https://i.esdrop.com/d/f/4PiRXDn9VM/34PNMairR4.jpg" 
+         alt="cover" 
+         style="position:absolute; left:33.7%; top:5%; width:33.2%; height:auto%; z-index:100;">
+         <img src="https://i.esdrop.com/d/f/4PiRXDn9VM/BXsv4zYF1P.jpg" 
+         alt="cover" 
+         style="position:absolute; left:67.4%; top:5%; width:33.2%; height:auto%; z-index:100;">
+         
+         <!-- ... -->
+         <img src="https://i.esdrop.com/d/f/4PiRXDn9VM/Mx4dFGE3Am.png" 
+         alt="cover" 
+         style="position:absolute; left:49%; top:4.7%; width:4.5%; height:auto%; z-index:101;">
+         <img src="https://i.esdrop.com/d/f/4PiRXDn9VM/Mx4dFGE3Am.png" 
+         alt="cover" 
+         style="position:absolute; left:13.5%; top:4.7%; width:4.5%; height:auto%; z-index:101;">
+         <img src="https://i.esdrop.com/d/f/4PiRXDn9VM/Mx4dFGE3Am.png" 
+         alt="cover" 
+         style="position:absolute; left:13.5%; top:9.66%; width:4.5%; height:auto%; z-index:101;">
+  </div>
 </div>
 
 <!-- 스크립트 없음 (입력 / 모달 관련 모든 기능 삭제됨) -->
