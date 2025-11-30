@@ -9,6 +9,7 @@
     --size: 30px; /* 원형 재생바 크기 */
     --ring-width: 8;
   }
+
   body{
     display:flex;
     height:100vh;
@@ -28,11 +29,11 @@
 
   /* 오른쪽 텍스트 */
   .song-title{
-    font-size:18px;
+    font-size:18px;      /* PC와 모바일 동일 */
     font-weight:500;
-    height:var(--size);              /* 원형 재생바와 높이 동일 */
+    height:var(--size);  /* 원형 재생바와 높이 동일 */
     display:flex;
-    align-items:center;              /* 세로 가운데 정렬 */
+    align-items:center;  /* 세로 가운데 정렬 */
     color:#000;
     white-space:nowrap;
   }
@@ -46,6 +47,7 @@
     place-items:center;
     user-select:none;
   }
+
   svg {
     width:100%;
     height:100%;
@@ -58,9 +60,11 @@
     stroke-width:var(--ring-width);
     transition: stroke 200ms ease;
   }
+
   .ring-bg{
     fill:transparent;
   }
+
   .ring-progress{
     fill:none;
     stroke:#000;
@@ -92,16 +96,27 @@
     stroke:#ccc; /* 회색 테두리 */
   }
 
-  @media (max-width:420px){
-    :root{ --size:110px; }
-    .song-title{ font-size:16px; }
+  /* 노래 제목 Bold/색상/얇기 적용 */
+  .song-title span.bold-black{
+    font-weight:600;
+    color: rgb(0,0,0);
+  }
+
+  .song-title span.bold-gray{
+    font-weight:600;
+    color: rgb(111,117,128);
+  }
+
+  .song-title span.light-gray{
+    font-weight:300;
+    color: rgb(111,117,128);
   }
 </style>
 </head>
 <body>
 
 <div class="player-wrap">
-  
+
   <!-- 원형 플레이어 -->
   <div class="player" id="player">
     <svg viewBox="0 0 100 100">
@@ -126,10 +141,10 @@
 
   <!-- 오른쪽 노래 제목 -->
   <div class="song-title">
-  <span style="color: rgb(0,0,0); font-weight:600;">보여줄게</span>
-  <span style="color: rgb(111,117,128); font-weight:1000;"><b>&nbsp•&nbsp</b></span>
-  <span style="color: rgb(111,117,128); font-weight:500;">에일리(Ailee)</span>
-</div>
+    <span class="bold-black">보여줄게</span>
+    <span class="bold-gray">&nbsp•&nbsp</span>
+    <span class="light-gray">에일리(Ailee)</span>
+  </div>
 
 </div>
 
