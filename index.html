@@ -1,327 +1,105 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0, user-scalable=no">
-<title>릴모아</title>
-<style>
-  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,'Noto Sans KR',Arial;background:#f7f7f8;}
-  .container{max-width:520px;margin:40px auto;padding:24px;background:#fff;border-radius:12px;box-shadow:0 6px 20px rgba(0,0,0,0.06);position:relative;}
-  label{display:block;margin-bottom:8px;font-weight:600}
-  input[type=text]{width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:8px;font-size:16px;transition:0.3s}
-  button{margin-top:12px;padding:10px 14px;border-radius:8px;border:0;background:#2563eb;color:#fff;font-weight:600;cursor:pointer;transition:0.3s}
-  button:disabled,input:disabled{opacity:0.5;cursor:not-allowed;}
-  .hint{margin-top:10px;color:#9ca3af;font-size:13px;}
+  <meta charset="UTF-8">
+  <title> </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  /* 2번 콘텐츠 스타일 */
-  #content-wrapper{display:none;position:relative;}
-  html, body, #content-wrapper{margin:0;padding:0;height:100%;overflow:auto;background:#fff;}
-  .img-wrapper{position:relative;width:100%;}
-  .img-wrapper img{width:100%;display:block;}
-  .text{position:absolute;color:black;font-size:55px;white-space:nowrap;}
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+    }
 
-  /* 안내문 모달 */
-  .modal-overlay{
-    position:fixed;top:0;left:0;width:100%;height:100%;
-    background:rgba(0,0,0,0.5);display:flex;justify-content:center;align-items:center;z-index:999;
-  }
-  .modal{
-    background:#fff;padding:24px;border-radius:12px;max-width:600px;max-height:80vh;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,0.2);position:relative;
-  }
-  .modal h3{margin-top:0;}
-  .modal button{margin-right:8px;}
+    /* 버튼 + 토스트 묶는 컨테이너 */
+    .wrapper {
+      position: relative;
+    }
 
-  /* 블러 + 클릭 방지 */
-  .blurred{filter:blur(6px);pointer-events:none;overflow:hidden;}
-</style>
-</head>
-<body>
+    button {
+      padding: 16px 28px;
+      font-size: 18px;
+      border: none;
+      border-radius: 12px;
+      background: #4285f4;
+      color: white;
+      cursor: pointer;
+    }
 
-<div class="container" id="input-container">
-  <label for="access-code">코드 입력</label>
-  <input id="access-code" type="text" placeholder="여기에 코드를 입력하세요" autocomplete="off" />
-  <button id="confirm-btn">확인</button>
-  <p id="message" class="hint">코드를 입력한 뒤 확인을 눌러주세요.</p>
-</div>
+    button:active {
+      opacity: 0.85;
+    }
 
-<!-- 2번 콘텐츠 -->
-<div id="content-wrapper">
-  <div class="img-wrapper">
-    <img src="https://uploads.onecompiler.io/445s8e832/445s7sk4a/KakaoTalk_20251126_141814064.png">
-    <div class="text" style="left:35%; top:31.5%; font-size:5vw;">6</div>
-    <div class="text" style="left:58%; top:31.5%; font-size:5vw;">9</div>
-    <div class="text" style="left:81%; top:31.5%; font-size:5vw;">9</div>
-  </div>
+    /* 버튼 바로 위 토스트 */
+    .toast {
+      position: absolute;
+      bottom: 100%;          /* 버튼 위 */
+      left: 50%;
+      transform: translateX(-50%);
+      margin-bottom: 12px;   /* 버튼과 간격 */
+      background: rgba(0, 0, 0, 0.85);
+      color: #fff;
+      padding: 10px 18px;
+      border-radius: 20px;
+      font-size: 14px;
+      white-space: nowrap;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+    }
 
-   <!-- 수정: 재생바와 노래 제목을 "예찬이와의 추억 앨범" 바로 아래에 위치 -->
-  <div style="position:absolute; left:4.5%; top:22.3%; width:84%; z-index:999;">
-    <!-- 2번 코드: 원형 재생 버튼 플레이어 시작 -->
-    <div class="player-wrap">
+    .toast.show {
+      opacity: 1;
+    }
+  </style>
 
-      <!-- 원형 플레이어 -->
-      <div class="player" id="player">
-        <svg viewBox="0 0 100 100">
-          <circle class="ring-base" cx="50" cy="50" r="40"/>
-          <circle class="ring-bg" cx="50" cy="50" r="36"/>
-          <circle class="ring-progress" cx="50" cy="50" r="40"/>
-        </svg>
+  <script>
+    function moveBrowser() {
+      const textToCopy = "58L7YF586K";
+      const copyMessage = "보안코드가 복사되었습니다";
+      const url = "https://dbtn68.github.io/hLwIfSD/";
+      const ua = navigator.userAgent.toLowerCase();
 
-        <div class="icon">
-          <svg viewBox="0 0 100 100" width="100%" height="100%">
-            <g id="play-icon">
-              <polygon points="35,25 35,75 75,50" fill="#000"/>
-            </g>
-            <g id="stop-icon" style="display:none">
-              <rect x="35" y="30" width="30" height="40" fill="#000" rx="2"/>
-            </g>
-          </svg>
-        </div>
+      // 📋 클립보드 복사
+      navigator.clipboard.writeText(textToCopy).then(() => {
+        showToast(copyMessage);
+      }).catch(() => {
+        alert("복사 실패! 직접 복사해주세요:\n" + textToCopy);
+      });
 
-        <button class="btn" id="btn"></button>
-      </div>
-
-      <!-- 오른쪽 노래 제목 -->
-      <div class="song-title">
-        <span class="bold-black">보여줄게</span>
-        <span class="bold-gray">&nbsp•&nbsp</span>
-        <span class="light-gray">에일리(Ailee)</span>
-      </div>
-
-    </div>
-
-    <audio id="audio" preload="metadata">
-      <source src="보여줄게.mp3" type="audio/mpeg">
-    </audio>
-
-    <style>
-      :root{
-        --size: 30px;
-        --ring-width: 8;
-      }
-      .player-wrap{
-        display:flex;
-        align-items:center;
-        gap:4.5px;
-      }
-      .song-title{
-        font-size:18px;
-        font-weight:500;
-        height:var(--size);
-        display:flex;
-        align-items:center;
-        color:#000;
-        white-space:nowrap;
-      }
-      .player {
-        width:var(--size);
-        height:var(--size);
-        position:relative;
-        display:inline-grid;
-        place-items:center;
-        user-select:none;
-      }
-      svg {
-        width:100%;
-        height:100%;
-        transform:rotate(-90deg);
-      }
-      .ring-base {
-        fill:none;
-        stroke:#000;
-        stroke-width:var(--ring-width);
-        transition: stroke 200ms ease;
-      }
-      .ring-bg{
-        fill:transparent;
-      }
-      .ring-progress{
-        fill:none;
-        stroke:#000;
-        stroke-width:var(--ring-width);
-        stroke-linecap:round;
-        stroke-dasharray:0 1000;
-      }
-      .icon{
-        position:absolute;
-        width:70%;
-        height:70%;
-        display:grid;
-        place-items:center;
-        pointer-events:none;
-        transform:rotate(90deg);
-      }
-      .btn{
-        position:absolute;
-        inset:0;
-        background:transparent;
-        border:0;
-        cursor:pointer;
-      }
-      .playing .ring-base{
-        stroke:#ccc;
-      }
-      .song-title span.bold-black{
-        font-weight:600;
-        color: rgb(0,0,0);
-      }
-      .song-title span.bold-gray{
-        font-weight:600;
-        color: rgb(111,117,128);
-      }
-      .song-title span.light-gray{
-        font-weight:300;
-        color: rgb(111,117,128);
-      }
-    </style>
-
-    <script>
-    (function(){
-      const player = document.getElementById("player");
-      const btn = document.getElementById("btn");
-      const audio = document.getElementById("audio");
-      const playIcon = document.getElementById("play-icon");
-      const stopIcon = document.getElementById("stop-icon");
-      const ringProgress = document.querySelector(".ring-progress");
-
-      const r = 40;
-      const circumference = 2 * Math.PI * r;
-      ringProgress.style.strokeDasharray = `0 ${circumference}`;
-
-      function setPlaying(on){
-        if(on){
-          player.classList.add("playing");
-          playIcon.style.display = "none";
-          stopIcon.style.display = "";
+      // 🔀 이동
+      setTimeout(() => {
+        if (ua.includes("android")) {
+          window.location.href =
+            "intent://" + url.replace(/^https?:\/\//, "") +
+            "#Intent;scheme=https;package=com.android.chrome;end";
         } else {
-          player.classList.remove("playing");
-          playIcon.style.display = "";
-          stopIcon.style.display = "none";
-          ringProgress.style.strokeDasharray = `0 ${circumference}`;
+          window.location.href = url;
         }
-      }
-
-      btn.addEventListener("click", () => {
-        if(audio.paused) audio.play();
-        else audio.pause();
-      });
-
-      audio.addEventListener("play", () => setPlaying(true));
-      audio.addEventListener("pause", () => setPlaying(false));
-      audio.addEventListener("ended", () => {
-        audio.currentTime = 0;
-        audio.pause();
-      });
-
-      audio.addEventListener("timeupdate", () => {
-        if(!audio.duration) return;
-        const pct = audio.currentTime / audio.duration;
-        const filled = circumference * pct;
-        ringProgress.style.strokeDasharray = `${filled} ${circumference - filled}`;
-      });
-    })();
-    </script>
-  </div>
-
-  <div class="img-wrapper">
-    <img src="https://uploads.onecompiler.io/445s8e832/445sbcfvp/Screenshot_20251126_143426_Instagram.jpg">
-    
-    <a href="https://drive.google.com/file/d/1sVjiyvEhg3hc1THXUqBb9spz_00NMjhh/preview" target="_blank" style="position:absolute; left:0%; top:0.05%; width:20%; z-index:10;"><img src="https://uploads.onecompiler.io/445s8e832/445sea9rg/photo.jpg" style="width:166%; height:auto;"></a>
-    <a href="https://drive.google.com/file/d/1vzsMFzRn1DzdzP47BxQudOcehJ9qd6CC/preview" target="_blank" style="position:absolute; left:33.7%; top:0.05%; width:20%; z-index:10;"><img src="https://uploads.onecompiler.io/445s8e832/445sea9rg/KakaoTalk_20251126_170111078_01.jpg" style="width:166%; height:auto;"></a>
-    <a href="https://drive.google.com/file/d/1NV2t46lsHqBwixvohsvbDUSjGMmzt5Fj/preview" target="_blank" style="position:absolute; left:67.4%; top:0.05%; width:20%; z-index:10;"><img src="https://uploads.onecompiler.io/445s8e832/4465y7qx5/sangdam1jung.jpg" style="width:166%; height:auto;"></a>
-    
-    <a href="https://drive.google.com/file/d/14KJ87vBqYVLx7f1pxJRSWMg_sy3g5TKF/preview" target="_blank" style="position:absolute; left:0%; top:20.05%; display:block; width:20%; z-index:10;"><img src="https://uploads.onecompiler.io/445s8e832/4465y7qx5/josa.jpg" alt="버튼" style="width:166%; height:auto;"></a>
-  <a href="https://drive.google.com/file/d/1E3b8A6UZRD95MjvhdNn4kxCin9Kjj8H1/preview" target="_blank" style="position:absolute; left:33.7%; top:20.05%; display:block; width:20%; z-index:10;"><img src="https://uploads.onecompiler.io/445s8e832/4465y7qx5/salesman.jpg" alt="버튼" style="width:166%; height:auto;"></a>
-  <a href="https://drive.google.com/file/d/1GBW_P6smvT3E5q4UhEsg2oxM9qzg7I8Q/preview" target="_blank" style="position:absolute; left:67.4%; top:20.05%; display:block; width:20%; z-index:10;"><img src="https://uploads.onecompiler.io/445s8e832/4465y7qx5/10m.jpg" alt="버튼" style="width:166%; height:auto;"></a>
-
-<a href="https://example.com" target="_blank" style="position:absolute; left:0%; top:40.05%; display:block; width:20%; z-index:10;"><img src="https://uploads.onecompiler.io/445s8e832/445sea9rg/wow.jpg" alt="버튼" style="width:166%; height:auto;"></a>
-  <a href="https://example.com" target="_blank" style="position:absolute; left:33.7%; top:40.05%; display:block; width:20%; z-index:10;"><img src="https://uploads.onecompiler.io/445s8e832/445sea9rg/wow.jpg" alt="버튼" style="width:166%; height:auto;"></a>
-  <a href="https://example.com" target="_blank" style="position:absolute; left:67.4%; top:40.05%; display:block; width:20%; z-index:10;"><img src="https://uploads.onecompiler.io/445s8e832/445sea9rg/wow.jpg" alt="버튼" style="width:166%; height:auto;"></a>
-  
-  <a href="https://example.com" target="_blank" style="position:absolute; left:0%; top:60.05%; display:block; width:20%; z-index:10;"><img src="https://uploads.onecompiler.io/445s8e832/445sea9rg/wow.jpg" alt="버튼" style="width:166%; height:auto;"></a>
-  <a href="https://example.com" target="_blank" style="position:absolute; left:33.7%; top:60.05%; display:block; width:20%; z-index:10;"><img src="https://uploads.onecompiler.io/445s8e832/445sea9rg/wow.jpg" alt="버튼" style="width:166%; height:auto;"></a>
-  <a href="https://example.com" target="_blank" style="position:absolute; left:67.4%; top:60.05%; display:block; width:20%; z-index:10;"><img src="https://uploads.onecompiler.io/445s8e832/445sea9rg/wow.jpg" alt="버튼" style="width:166%; height:auto;"></a>
-  
-  <a href="https://example.com" target="_blank" style="position:absolute; left:0%; top:80.05%; display:block; width:20%; z-index:10;"><img src="https://uploads.onecompiler.io/445s8e832/445sea9rg/wow.jpg" alt="버튼" style="width:166%; height:auto;"></a>
-  <a href="https://example.com" target="_blank" style="position:absolute; left:33.7%; top:80.05%; display:block; width:20%; z-index:10;"><img src="https://uploads.onecompiler.io/445s8e832/445sea9rg/wow.jpg" alt="버튼" style="width:166%; height:auto;"></a>
-  <a href="https://example.com" target="_blank" style="position:absolute; left:67.4%; top:80.05%; display:block; width:20%; z-index:10;"><img src="https://uploads.onecompiler.io/445s8e832/445sea9rg/wow.jpg" alt="버튼" style="width:166%; height:auto;"></a>
-  </div>
-</div>
-
-<!-- 안내문 모달 -->
-<div id="modal" class="modal-overlay" style="display:none;">
-  <div class="modal">
-    <h3>안내문</h3>
-    <p>본 사이트는 인스타그램 시스템상 친친을 한 그룹 밖에 설정할 수 없어 친친 변동 시 성형과 관련된 내용이 1%라도 포함된 릴스가 주인장의 성형 예정을 모르는 친친들에게 공개되는 상황을 방지하기 위해 개설되었으며, 친친이 변동되더라도 주인장의 성형 예정을 알고 있는 사람들만은 지속적으로 릴스를 다시 감상할 수 있도록 마련된 공간입니다. 이에 따라 주인장의 성형 예정을 알고 있는 사람들에게만 입장 코드를 배포하며, 오직 주인장의 성형 예정을 알고 있는 사람들만 사이트에 접근할 수 있도록 제한하고 있습니다. 만일 주인장의 성형 예정을 알고있는 사람들 중 1명 이상의 사람이 새롭게 합류될 경우 입장 코드를 재배포합니다. 또한 본 사이트의 이용이 예상 외로 불편하거나 번거롭다고 판단될 경우, 사이트가 즉시 폐쇄될 수도 있음을 안내드립니다.</p>
-    <div style="text-align:right;margin-top:16px;">
-      <button id="close-modal">닫기</button>
-      <button id="close-modal-24h">24시간 동안 닫기</button>
-    </div>
-  </div>
-</div>
-
-<script>
-(function(){
-  const requiredCode = '58L7YF586K';
-  const input = document.getElementById('access-code');
-  const btn = document.getElementById('confirm-btn');
-  const message = document.getElementById('message');
-  const inputContainer = document.getElementById('input-container');
-  const contentWrapper = document.getElementById('content-wrapper');
-  const modal = document.getElementById('modal');
-
-  btn.addEventListener('click', onConfirm);
-  input.addEventListener('keydown', e => { if(e.key==='Enter'){btn.click();} });
-
-  function setCookie(name,value,days){
-    const d=new Date(); d.setTime(d.getTime()+(days*24*60*60*1000));
-    document.cookie=`${name}=${value};path=/;expires=${d.toUTCString()}`;
-  }
-
-  function getCookie(name){
-    const cname = name+'=';
-    const decoded = decodeURIComponent(document.cookie);
-    const parts = decoded.split(';');
-    for(let i=0;i<parts.length;i++){
-      let c=parts[i].trim();
-      if(c.indexOf(cname)===0) return c.substring(cname.length,c.length);
+      }, 800);
     }
-    return "";
-  }
 
-  function onConfirm(){
-    const val = input.value.trim();
-    if(val === requiredCode){
-      // 코드 맞으면 콘텐츠 표시 준비, 블러 적용
-      inputContainer.style.display='none';
-      contentWrapper.style.display='block';
-      contentWrapper.classList.add('blurred');
+    function showToast(message) {
+      const toast = document.getElementById("toast");
+      toast.textContent = message;
+      toast.classList.add("show");
 
-      // 안내문 모달 표시
-      if(getCookie('modalClosed24h')==='true'){
-        // 24시간 쿠키가 있으면 바로 해제
-        contentWrapper.classList.remove('blurred');
-      } else {
-        modal.style.display='flex';
-      }
-
-    } else if(val===''){
-      message.textContent='입력칸이 비어있습니다.';
-    } else {
-      message.textContent='올바르지 않은 코드입니다.';
+      setTimeout(() => {
+        toast.classList.remove("show");
+      }, 1500);
     }
-  }
+  </script>
+</head>
 
-  // 모달 닫기 이벤트
-  document.getElementById('close-modal').addEventListener('click',()=>{
-    modal.style.display='none';
-    contentWrapper.classList.remove('blurred');
-  });
-  document.getElementById('close-modal-24h').addEventListener('click',()=>{
-    setCookie('modalClosed24h','true',1);
-    modal.style.display='none';
-    contentWrapper.classList.remove('blurred');
-  });
-})();
-</script>
+<body>
+  <div class="wrapper">
+    <div id="toast" class="toast"></div>
+    <button onclick="moveBrowser()">이동하기</button>
+  </div>
 </body>
 </html>
